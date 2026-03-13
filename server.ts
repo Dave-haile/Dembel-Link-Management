@@ -2,8 +2,13 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
+import { fileURLToPath } from "url";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const db = new Database("linkhub.db");
 
@@ -87,8 +92,13 @@ const seedLinks = [
 const insertLink = db.prepare(
   "INSERT INTO links (title, subtitle, url, icon) VALUES (?, ?, ?, ?)",
 );
-seedLinks.forEach((l) => insertLink.run(l.title, l.subtitle, l.url, l.icon));
+const linkCount = db
+  .prepare("SELECT COUNT(*) as count FROM links")
+  .get() as any;
 
+if (linkCount.count === 0) {
+  seedLinks.forEach((l) => insertLink.run(l.title, l.subtitle, l.url, l.icon));
+}
 async function startServer() {
   const app = express();
   app.use(express.json());
@@ -258,7 +268,7 @@ async function startServer() {
     });
   }
 
-  const PORT = 3000;
+  const PORT = parseInt(process.env.PORT || "3000", 10);
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
