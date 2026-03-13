@@ -9,8 +9,6 @@ const db = new Database("linkhub.db");
 
 // Initialize database
 db.exec(`
-  DROP TABLE IF EXISTS settings;
-  
   CREATE TABLE IF NOT EXISTS links (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
